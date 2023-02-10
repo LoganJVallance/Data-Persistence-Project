@@ -11,17 +11,30 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text bestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    [SerializeField] private string m_playerName = "";
+    [SerializeField] private int m_HighPoints = 0;
     
     private bool m_GameOver = false;
+    private bool _reset = false;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        m_Points = 0;
+
+        if (GameManager.Instance.m_highScore > 0)
+        {
+            m_HighPoints = GameManager.Instance.m_highScore;
+        }
+
+        bestScoreText.text = "Best Score : " + GameManager.Instance.m_playername + " : " + GameManager.Instance.m_highScore;
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -62,6 +75,7 @@ public class MainManager : MonoBehaviour
         }
     }
 
+
     void AddPoint(int point)
     {
         m_Points += point;
@@ -72,5 +86,34 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        HighScore();
     }
+
+    void HighScore()
+    {
+        if (!_reset)
+        {
+            if (m_Points > m_HighPoints)
+            {
+                m_HighPoints = m_Points;
+                m_playerName = GameManager.Instance.m_cPlayerName;
+                bestScoreText.text = "Best Score : " + m_playerName + " : " + m_HighPoints;
+                GameManager.Instance.m_playername = m_playerName;
+                GameManager.Instance.m_highScore = m_HighPoints;
+
+                GameManager.Instance.SaveHighScore();
+            }
+        }
+        else
+        {
+            m_HighPoints = 0;
+            m_playerName = GameManager.Instance.m_cPlayerName;
+            bestScoreText.text = "Best Score : " + m_playerName + " : " + m_HighPoints;
+            GameManager.Instance.m_playername = m_playerName;
+            GameManager.Instance.m_highScore = m_HighPoints;
+
+            GameManager.Instance.SaveHighScore();
+        }
+    }
+    
 }
